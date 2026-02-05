@@ -1,122 +1,33 @@
 databaseChangeLog:
-  # === Schema creation ===
+  # =========================================================
+  # === Schema creation (Official Evidence Service) ===
+  # =========================================================
+
   - include:
-      file: schema/001-create-type.yaml
+      file: schema/001-create-official-evidence.yaml
       relativeToChangelogFile: true
       context: schema
 
   - include:
-      file: schema/002-create-make.yaml
+      file: schema/002-create-official-evidence-snapshot.yaml
       relativeToChangelogFile: true
       context: schema
 
   - include:
-      file: schema/003-create-model.yaml
+      file: schema/003-create-evidence-audit-log.yaml
       relativeToChangelogFile: true
       context: schema
 
   - include:
-      file: schema/004-create-generation.yaml
+      file: schema/004-create-vehicle-evidence-index.yaml
       relativeToChangelogFile: true
       context: schema
 
+  # =========================================================
+  # === Immutability protection (DB-level) ===
+  # =========================================================
+
   - include:
-      file: schema/005-create-series.yaml         # <-- MUST be before modification!
+      file: schema/005-prevent-snapshot-update-delete.yaml
       relativeToChangelogFile: true
       context: schema
-
-  - include:
-      file: schema/006-create-modification.yaml
-      relativeToChangelogFile: true
-      context: schema
-
-  - include:
-      file: schema/007-create-year.yaml
-      relativeToChangelogFile: true
-      context: schema
-
-  - include:
-      file: schema/008-create-option.yaml
-      relativeToChangelogFile: true
-      context: schema
-
-  - include:
-      file: schema/010-create-equipment.yaml       # <-- moved before option-value
-      relativeToChangelogFile: true
-      context: schema
-
-  - include:
-      file: schema/009-create-option-value.yaml    # <-- comes after equipment now
-      relativeToChangelogFile: true
-      context: schema
-
-  - include:
-      file: schema/011-create-characteristic.yaml
-      relativeToChangelogFile: true
-      context: schema
-
-  - include:
-      file: schema/012-create-characteristic-value.yaml
-      relativeToChangelogFile: true
-      context: schema
-
-  # === Seed data ===
-  - include:
-      file: seed/001-seed-type.yaml
-      relativeToChangelogFile: true
-      context: seed
-
-  - include:
-      file: seed/002-seed-make.yaml
-      relativeToChangelogFile: true
-      context: seed
-
-  - include:
-      file: seed/003-seed-model.yaml
-      relativeToChangelogFile: true
-      context: seed
-
-  - include:
-      file: seed/004-seed-generation.yaml
-      relativeToChangelogFile: true
-      context: seed
-
-  - include:
-      file: seed/005-seed-series.yaml
-      relativeToChangelogFile: true
-      context: seed
-
-  - include:
-      file: seed/006-seed-modification.yaml
-      relativeToChangelogFile: true
-      context: seed
-
-  - include:
-      file: seed/007-seed-year.yaml
-      relativeToChangelogFile: true
-      context: seed
-
-  - include:
-      file: seed/008-seed-option.yaml
-      relativeToChangelogFile: true
-      context: seed
-
-  - include:
-      file: seed/010-seed-equipment.yaml           # <-- moved before option-value
-      relativeToChangelogFile: true
-      context: seed
-
-  - include:
-      file: seed/009-seed-option-value.yaml        # <-- now after equipment
-      relativeToChangelogFile: true
-      context: seed
-
-  - include:
-      file: seed/011-seed-characteristic.yaml
-      relativeToChangelogFile: true
-      context: seed
-
-  - include:
-      file: seed/012-seed-characteristic-value.yaml
-      relativeToChangelogFile: true
-      context: seed
