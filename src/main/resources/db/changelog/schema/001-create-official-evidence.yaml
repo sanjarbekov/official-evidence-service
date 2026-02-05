@@ -1,0 +1,64 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-official-evidence
+      author: sanjar.bekov
+      context: schema
+      changes:
+        - createTable:
+            tableName: official_evidence
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: type
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: source
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: subject_ref
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+
+              # === AuditableEntity ===
+              - column:
+                  name: created_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: last_modified_date
+                  type: TIMESTAMP
+
+              - column:
+                  name: created_by
+                  type: VARCHAR(100)
+
+              - column:
+                  name: last_modified_by
+                  type: VARCHAR(100)
+
+        - addUniqueConstraint:
+            tableName: official_evidence
+            columnNames: type, source, subject_ref
+            constraintName: uk_official_evidence_identity
+
+        - createIndex:
+            tableName: official_evidence
+            indexName: ix_official_evidence_subject_ref
+            columns:
+              - column:
+                  name: subject_ref

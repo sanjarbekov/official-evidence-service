@@ -1,0 +1,47 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-create-vehicle-evidence-index
+      author: sanjar.bekov
+      context: schema
+      changes:
+        - createTable:
+            tableName: vehicle_evidence_index
+            columns:
+              - column:
+                  name: snapshot_id
+                  type: BIGINT
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+
+              - column:
+                  name: plate_number
+                  type: VARCHAR(20)
+
+              - column:
+                  name: model
+                  type: VARCHAR(100)
+
+              - column:
+                  name: production_year
+                  type: INTEGER
+
+              - column:
+                  name: power
+                  type: INTEGER
+
+              # === AuditableEntity ===
+              - column:
+                  name: created_date
+                  type: TIMESTAMP
+                  constraints:
+                    nullable: false
+
+        - addForeignKeyConstraint:
+            baseTableName: vehicle_evidence_index
+            baseColumnNames: snapshot_id
+            referencedTableName: official_evidence_snapshot
+            referencedColumnNames: id
+            constraintName: fk_vehicle_index_snapshot
+            onDelete: CASCADE
+            onUpdate: RESTRICT
