@@ -1,0 +1,128 @@
+databaseChangeLog:
+  - changeSet:
+      id: 006-create-modification
+      author: sanjar.bekov
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            tableExists:
+              tableName: modification
+      changes:
+        - createTable:
+            tableName: modification
+            remarks: "Specific modification (trim/configuration) of a vehicle series and model"
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_modification
+                    nullable: false
+
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: start_production_year
+                  type: INTEGER
+
+              - column:
+                  name: end_production_year
+                  type: INTEGER
+
+              # ===== Domain dates (NOT auditing) =====
+              - column:
+                  name: date_create
+                  type: TIMESTAMP
+
+              - column:
+                  name: date_update
+                  type: TIMESTAMP
+
+              # ===== AuditableEntity =====
+              - column:
+                  name: created_date
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: last_modified_date
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+
+              - column:
+                  name: created_by
+                  type: VARCHAR(255)
+
+              - column:
+                  name: last_modified_by
+                  type: VARCHAR(255)
+
+              # ===== Relations =====
+              - column:
+                  name: series_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: model_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: type_id
+                  type: BIGINT
+
+        - addForeignKeyConstraint:
+            baseTableName: modification
+            baseColumnNames: series_id
+            referencedTableName: series
+            referencedColumnNames: id
+            onDelete: CASCADE
+            constraintName: fk_modification_series
+
+        - addForeignKeyConstraint:
+            baseTableName: modification
+            baseColumnNames: model_id
+            referencedTableName: model
+            referencedColumnNames: id
+            onDelete: CASCADE
+            constraintName: fk_modification_model
+
+        - addForeignKeyConstraint:
+            baseTableName: modification
+            baseColumnNames: type_id
+            referencedTableName: type
+            referencedColumnNames: id
+            onDelete: SET NULL
+            constraintName: fk_modification_type
+
+        - createIndex:
+            tableName: modification
+            indexName: ix_modification_series
+            columns:
+              - column:
+                  name: series_id
+
+        - createIndex:
+            tableName: modification
+            indexName: ix_modification_model
+            columns:
+              - column:
+                  name: model_id
+
+        - createIndex:
+            tableName: modification
+            indexName: ix_modification_type
+            columns:
+              - column:
+                  name: type_id

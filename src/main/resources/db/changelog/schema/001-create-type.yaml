@@ -1,0 +1,52 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-type
+      author: sanjar.bekov
+      changes:
+        - createTable:
+            tableName: type
+            remarks: "Stores types of vehicles such as легковые, грузовые, мотоциклы, etc."
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_type
+                    nullable: false
+
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+
+              # ===== AuditableEntity =====
+              - column:
+                  name: created_date
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: last_modified_date
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+
+              - column:
+                  name: created_by
+                  type: VARCHAR(255)
+
+              - column:
+                  name: last_modified_by
+                  type: VARCHAR(255)
+
+        - createIndex:
+            tableName: type
+            indexName: ix_type_name
+            unique: true
+            columns:
+              - column:
+                  name: name

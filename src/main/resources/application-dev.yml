@@ -1,0 +1,73 @@
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/official-evidence-dev;MODE=PostgreSQL;DATABASE_TO_UPPER=true;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  sql:
+    init:
+      mode: never
+      schema-locations: classpath:db/h2/reset.sql
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      jakarta.persistence.schema-generation.database.action: none
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    # ❗ Evidence must NOT be seeded with fake data
+    contexts: schema
+    clear-checksums: true
+    drop-first: false
+
+  h2:
+    console:
+      enabled: true
+      path: /h2
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/official-evidence
+
+server:
+  port: 8086
+
+app:
+  web:
+    cors-enabled: true
+    cors-origins:
+      - http://localhost:5173
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+# Official evidence service–specific configuration
+official-evidence:
+  snapshot:
+    immutable: true
+    checksum-enabled: true
+
+  retention:
+    enabled: false   # disabled in dev to avoid cleanup confusion
+
+  masking:
+    pinfl: true
+    inn: true
+
+  cache:
+    enabled: false   # usually off in dev unless testing rate limits
+
+logging:
+  level:
+    liquibase: info

@@ -1,0 +1,12 @@
+services:
+  pg:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: metadata
+      POSTGRES_USER: metadata
+      POSTGRES_PASSWORD: metadata
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:

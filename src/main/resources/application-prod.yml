@@ -1,0 +1,69 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${DB_URL:jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:official_evidence}}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+    hikari:
+      pool-name: OfficialEvidencePostgresPool
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: false
+        show_sql: false
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    contexts: schema
+    clear-checksums: false
+    # ❗ Evidence DB must never be dropped automatically
+    drop-first: false
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KEYCLOAK_ISSUER_URI:https://auth.company.com/realms/official-evidence}
+
+server:
+  port: 8086
+
+app:
+  web:
+    cors-enabled: true
+    cors-origins:
+      - https://app.company.com
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+# Official Evidence domain configuration
+official-evidence:
+  snapshot:
+    immutable: true            # append-only snapshots
+    checksum-enabled: true     # integrity verification
+
+  retention:
+    enabled: true
+    period-days: 3650          # 10 years (valuation & legal safety)
+
+  masking:
+    pinfl: true
+    inn: true
+
+  cache:
+    enabled: true
+    ttl-seconds: 1800          # external API response cache (30 min)
+
+logging:
+  level:
+    org.hibernate.SQL: WARN

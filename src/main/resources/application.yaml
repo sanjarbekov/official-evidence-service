@@ -1,0 +1,55 @@
+spring:
+  application:
+    name: official-evidence-service
+
+  profiles:
+    # If no profile is set, we run with "dev"
+    default: dev
+
+  # JPA schema is managed strictly by Liquibase
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        format_sql: false
+        show_sql: false
+
+  sql:
+    init:
+      mode: never
+
+  liquibase:
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    # Evidence data must never be dropped implicitly
+    drop-first: false
+
+server:
+  port: 8086
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+# Configuration specific to official evidence handling
+official-evidence:
+  snapshot:
+    immutable: true          # snapshots must never be updated
+    checksum-enabled: true   # hash raw payload for integrity check
+
+  retention:
+    enabled: true
+    period-days: 3650        # 10 years (valuation & legal safety)
+
+  masking:
+    pinfl: true              # mask personal identifiers
+    inn: true
+
+  cache:
+    enabled: true
+    ttl-seconds: 1800        # cache external responses (30 min)
+

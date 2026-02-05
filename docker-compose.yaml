@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:7
+    ports: ["27017:27017"]
+
+  analogue-service:
+    build:
+      context: ../analogue-service
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/analogue
+      - SERVER_PORT=8081
+      - SECURITY_INTERNAL_TOKEN=super-secret-123          # <<< same value
+    ports: ["8081:8081"]
+    depends_on: [mongo]
+
+  valuation-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - SERVER_PORT=8082
+      - ANALOGUE_BASE_URL=http://analogue-service:8081
+      - ANALOGUE_INTERNAL_TOKEN=super-secret-123          # <<< same value
+    ports: ["8082:8082"]
+    depends_on: [analogue-service]
+
+  ai-model-service:
+    build:
+      context: ../ai-model-service
+      dockerfile: Dockerfile
+    container_name: ai-model-service
+    environment:
+      - SERVER_PORT=8083
+      - DB_URL=jdbc:postgresql://postgres:5432/ai_model
+      - DB_USER=ai
+      - DB_PASSWORD=ai
+      - SECURITY_INTERNAL_TOKEN=super-secret-123
+      # Only if you enable JWT:
+      # - OAUTH2_ISSUER_URI=https://keycloak.local/realms/valuation
+    ports: ["8083:8083"]
+    depends_on:
+      valuation-service:
+        condition: service_started

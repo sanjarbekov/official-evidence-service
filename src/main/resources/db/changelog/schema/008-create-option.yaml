@@ -1,0 +1,100 @@
+databaseChangeLog:
+  - changeSet:
+      id: 008-create-option
+      author: sanjar.bekov
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            tableExists:
+              tableName: option
+
+      changes:
+        - createTable:
+            tableName: option
+            remarks: "Defines configurable options for a vehicle (e.g., interior color, wheels). Supports hierarchy via self-referencing parent_id."
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_option
+                    nullable: false
+
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: parent_id
+                  type: BIGINT
+
+              - column:
+                  name: type_id
+                  type: BIGINT
+
+              # ===== Domain dates =====
+              - column:
+                  name: date_create
+                  type: TIMESTAMP
+
+              - column:
+                  name: date_update
+                  type: TIMESTAMP
+
+              # ===== AuditableEntity =====
+              - column:
+                  name: created_date
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: last_modified_date
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+
+              - column:
+                  name: created_by
+                  type: VARCHAR(255)
+
+              - column:
+                  name: last_modified_by
+                  type: VARCHAR(255)
+
+        # ===== Self-referencing hierarchy =====
+        - addForeignKeyConstraint:
+            baseTableName: option
+            baseColumnNames: parent_id
+            referencedTableName: option
+            referencedColumnNames: id
+            onDelete: SET NULL
+            constraintName: fk_option_parent
+
+        # ===== Type relation =====
+        - addForeignKeyConstraint:
+            baseTableName: option
+            baseColumnNames: type_id
+            referencedTableName: type
+            referencedColumnNames: id
+            onDelete: SET NULL
+            constraintName: fk_option_type
+
+        # ===== Indexes =====
+        - createIndex:
+            tableName: option
+            indexName: ix_option_parent
+            columns:
+              - column:
+                  name: parent_id
+
+        - createIndex:
+            tableName: option
+            indexName: ix_option_type
+            columns:
+              - column:
+                  name: type_id

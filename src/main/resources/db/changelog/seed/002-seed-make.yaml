@@ -1,0 +1,82 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-seed-make
+      author: metadata
+      context: seed
+      preConditions:
+        - onFail: MARK_RAN
+        - tableExists: { tableName: make }
+        - tableExists: { tableName: type }
+        - not:
+            tableExists: { tableName: stg_make }
+
+      changes:
+        # Temporary staging table
+        - createTable:
+            tableName: stg_make
+            columns:
+              - column: { name: id_car_make,   type: BIGINT }
+              - column: { name: name,          type: VARCHAR(255) }
+              - column: { name: name_rus,      type: VARCHAR(255) }
+              - column: { name: date_create,   type: BIGINT }
+              - column: { name: date_update,   type: BIGINT }
+              - column: { name: id_car_type,   type: BIGINT }
+
+        # Load data from CSV
+        - loadData:
+            tableName: stg_make
+            file: classpath:db/changelog/data/make.csv
+            relativeToChangelogFile: false
+            encoding: UTF-8
+            separator: ';'
+            usePreparedStatements: true
+            columns:
+              - column: { header: id_car_make,  name: id_car_make,  type: NUMERIC }
+              - column: { header: name,         name: name,         type: STRING  }
+              - column: { header: name_rus,     name: name_rus,     type: STRING  }
+              - column: { header: date_create,  name: date_create,  type: NUMERIC }
+              - column: { header: date_update,  name: date_update,  type: NUMERIC }
+              - column: { header: id_car_type,  name: id_car_type,  type: NUMERIC }
+
+        # Insert into actual table (PostgreSQL)
+        - sql:
+            dbms: postgresql
+            splitStatements: false
+            sql: |
+              INSERT INTO make (id, name, name_rus, date_create, date_update, type_id)
+              SELECT
+                s.id_car_make,
+                s.name,
+                s.name_rus,
+                TO_TIMESTAMP(NULLIF(s.date_create, 0)),
+                TO_TIMESTAMP(NULLIF(s.date_update, 0)),
+                s.id_car_type
+              FROM stg_make s
+              WHERE NOT EXISTS (
+                SELECT 1 FROM make m WHERE m.id = s.id_car_make
+              );
+
+        # Insert into actual table (H2)
+        - sql:
+            dbms: h2
+            splitStatements: false
+            sql: |
+              INSERT INTO make (id, name, name_rus, date_create, date_update, type_id)
+              SELECT
+                s.id_car_make,
+                s.name,
+                s.name_rus,
+                CASE WHEN s.date_create = 0 THEN NULL
+                     ELSE DATEADD('SECOND', s.date_create, TIMESTAMP '1970-01-01 00:00:00') END,
+                CASE WHEN s.date_update = 0 THEN NULL
+                     ELSE DATEADD('SECOND', s.date_update, TIMESTAMP '1970-01-01 00:00:00') END,
+                s.id_car_type
+              FROM stg_make s
+              WHERE NOT EXISTS (
+                SELECT 1 FROM make m WHERE m.id = s.id_car_make
+              );
+
+        # Drop staging table
+        - dropTable:
+            tableName: stg_make
+            cascadeConstraints: true

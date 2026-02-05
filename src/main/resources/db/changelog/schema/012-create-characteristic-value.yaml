@@ -1,0 +1,146 @@
+databaseChangeLog:
+  - changeSet:
+      id: 012-create-characteristic-value
+      author: sanjar.bekov
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            tableExists:
+              tableName: characteristic_value
+
+      changes:
+        # =========================================================
+        # TABLE: characteristic_value
+        # =========================================================
+        - createTable:
+            tableName: characteristic_value
+            remarks: "Stores characteristic values per vehicle modification"
+            columns:
+
+              # ===== PK =====
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: pk_characteristic_value
+                    nullable: false
+
+              # ===== RELATIONS =====
+              - column:
+                  name: modification_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: characteristic_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: type_id
+                  type: BIGINT
+
+              # ===== BUSINESS DATA =====
+              - column:
+                  name: val
+                  type: VARCHAR(1024)
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: unit
+                  type: VARCHAR(32)
+
+              # ===== DOMAIN TIMESTAMPS =====
+              - column:
+                  name: date_create
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+
+              - column:
+                  name: date_update
+                  type: TIMESTAMP
+
+              # ===== AUDIT FIELDS (AuditableEntity) =====
+              - column:
+                  name: created_date
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+              - column:
+                  name: last_modified_date
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+
+              - column:
+                  name: created_by
+                  type: VARCHAR(255)
+
+              - column:
+                  name: last_modified_by
+                  type: VARCHAR(255)
+
+        # =========================================================
+        # FOREIGN KEYS
+        # =========================================================
+        - addForeignKeyConstraint:
+            constraintName: fk_char_val_modification
+            baseTableName: characteristic_value
+            baseColumnNames: modification_id
+            referencedTableName: modification
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            constraintName: fk_char_val_characteristic
+            baseTableName: characteristic_value
+            baseColumnNames: characteristic_id
+            referencedTableName: characteristic
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            constraintName: fk_char_val_type
+            baseTableName: characteristic_value
+            baseColumnNames: type_id
+            referencedTableName: type
+            referencedColumnNames: id
+            onDelete: SET NULL
+
+        # =========================================================
+        # CONSTRAINTS
+        # =========================================================
+        - addUniqueConstraint:
+            tableName: characteristic_value
+            columnNames: modification_id, characteristic_id
+            constraintName: uk_char_val_modification_characteristic
+
+        # =========================================================
+        # INDEXES
+        # =========================================================
+        - createIndex:
+            tableName: characteristic_value
+            indexName: ix_char_val_modification
+            columns:
+              - column:
+                  name: modification_id
+
+        - createIndex:
+            tableName: characteristic_value
+            indexName: ix_char_val_characteristic
+            columns:
+              - column:
+                  name: characteristic_id
+
+        - createIndex:
+            tableName: characteristic_value
+            indexName: ix_char_val_type
+            columns:
+              - column:
+                  name: type_id
