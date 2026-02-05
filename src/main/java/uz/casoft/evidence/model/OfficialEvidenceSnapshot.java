@@ -52,7 +52,7 @@ public class OfficialEvidenceSnapshot extends AuditableEntity {
      * FULL raw JSON payload returned by official source
      * Stored unchanged — legal evidence
      */
-    @Column(name = "raw_payload", nullable = false, columnDefinition = "jsonb")
+    @Column(name = "raw_payload", nullable = false)
     private String rawPayload;
 
     /**

@@ -1,3 +1,9 @@
+integration:
+  traffic-inspectorate:
+    vehicle-license:
+      url: https://rmp-apimgw.egov.uz:8243/yhxbb/service/vehiclelicense/v1
+      timeout-ms: 30000
+
 spring:
   application:
     name: official-evidence-service

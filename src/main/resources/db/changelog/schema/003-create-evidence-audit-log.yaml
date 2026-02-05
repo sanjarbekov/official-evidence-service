@@ -36,9 +36,47 @@ databaseChangeLog:
                   constraints:
                     nullable: false
 
-              # === AuditableEntity ===
+              # =========================
+              # AuditableEntity
+              # =========================
               - column:
                   name: created_date
                   type: TIMESTAMP
                   constraints:
                     nullable: false
+
+              - column:
+                  name: last_modified_date
+                  type: TIMESTAMP
+
+              - column:
+                  name: created_by
+                  type: VARCHAR(100)
+
+              - column:
+                  name: last_modified_by
+                  type: VARCHAR(100)
+
+        # =========================
+        # Indexes
+        # =========================
+        - createIndex:
+            tableName: evidence_audit_log
+            indexName: ix_evidence_audit_log_evidence
+            columns:
+              - column:
+                  name: evidence_id
+
+        - createIndex:
+            tableName: evidence_audit_log
+            indexName: ix_evidence_audit_log_snapshot
+            columns:
+              - column:
+                  name: snapshot_id
+
+        - createIndex:
+            tableName: evidence_audit_log
+            indexName: ix_evidence_audit_log_action
+            columns:
+              - column:
+                  name: action

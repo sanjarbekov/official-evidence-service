@@ -3,11 +3,11 @@ databaseChangeLog:
       id: 005-prevent-update-delete-official-evidence-snapshot
       author: sanjar.bekov
       context: schema
+      preConditions:
+        - onFail: MARK_RAN
+        - dbms:
+            type: postgresql
       changes:
-
-        # =========================================
-        # FUNCTION: prevent UPDATE / DELETE
-        # =========================================
         - sql:
             splitStatements: false
             sql: |
@@ -21,9 +21,6 @@ databaseChangeLog:
               END;
               $$ LANGUAGE plpgsql;
 
-        # =========================================
-        # TRIGGER: BEFORE UPDATE OR DELETE
-        # =========================================
         - sql:
             splitStatements: false
             sql: |
